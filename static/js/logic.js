@@ -8,7 +8,6 @@ var queryUrl = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/1.0_we
 d3.json(queryUrl).then(function (data) {
 
 
-
   // Once we get a response, send the data.features object to the createFeatures function.
   createFeatures(data.features);
 });
@@ -16,42 +15,27 @@ d3.json(queryUrl).then(function (data) {
 
 function createFeatures(earthquakeData) {
 
-  function pointToLayer(feature, latlng) {
-    var color;
-    if (feature.geometry.coordinates[2] < 10) {
-      color = "lime";
-    }
-    else if (feature.geometry.coordinates[2] >= 10 && feature.geometry.coordinates[2] < 30) {
-      color = "yellow";
-    }
-    else if (feature.geometry.coordinates[2] >= 30 && feature.geometry.coordinates[2] < 50)  {
-      color = "gold";
-    }
-    else if (feature.geometry.coordinates[2] >= 50 && feature.geometry.coordinates[2] < 70)  {
-      color = "orange";
-    }
-    else if (feature.geometry.coordinates[2] >= 70 && feature.geometry.coordinates[2] < 90)  {
-      color = "orangered";
-    }
-    else {
-      color = "red";
-    }
 
+  function getColor(m) {
+    if (m < 10) return "lime";
+    else if (m >= 10 && m < 30) return "yellow";
+    else if (m >= 30 && m < 50)  return "gold";
+    else if (m >= 50 && m < 70) return "orange"
+    else if (m >= 70 && m < 90) return "orangered";
+    else return color = "red";
+  }
+
+  function pointToLayer(feature, latlng) {
     // Add circles to the map.
     return new L.circleMarker(latlng, {
       fillOpacity: 0.5,
       stroke: false, 
-      fillColor: color,
+      fillColor: getColor(feature.geometry.coordinates[2]),
       // Adjust the radius.
       radius: feature.properties.mag * 1.5
     })
-
     
-
   }
-
-
-
     
     // Define a function that we want to run once for each feature in the features array.
   // Give each feature a popup that describes the place and time of the earthquake.
@@ -112,45 +96,28 @@ function createMap(earthquakes) {
   }).addTo(myMap);
 
 
-}
+   // Set up the legend.
+ var legend = L.control({position: 'bottomright'});
+
+ legend.onAdd = function () {
+
+   var div = L.DomUtil.create('div', 'info legend');
+   var quakeMag = [-10, 10, 30, 50, 70, 90];
+   var colors = ["lime", "yellow", "gold", "orange", "orangered", "red"];
+       // labels = [];
+
+   // loop through our density intervals and generate a label with a colored square for each interval
+   for (var i = 0; i < quakeMag.length; i++) {
+       div.innerHTML +=
+           '<i style="background:' + colors[i] + '"></i> ' +
+           quakeMag[i] + (quakeMag[i + 1] ? '&ndash;' + quakeMag[i + 1] + '<br>' : '+');
+   }
+
+   return div;
+ };
+
+ legend.addTo(myMap);
+
+};
 
 
-//////////////////////////////////////////////////////////////
-
-function getColor(m) {
-  return m >= 90  ? "red" :
-        m >= 70  ? "orangered" :
-        m >= 50  ? "orange" :
-        m >= 30   ? "gold":
-        m >= 10   ? "yellow" :
-                      "lime";
-}
-
-  // Set up the legend.
-  var legend = L.control({ position: "bottomright" });
-  legend.onAdd = function() {
-    var div = L.DomUtil.create("div", "info legend");
-    var quakeMag = [10, 30, 50, 70, 90];
-    var labels = [];
-
-    // Add the minimum and maximum.
-    var legendInfo = "<h1>Median Income</h1>" +
-      "<div class=\"labels\">" +
-        "<div class=\"min\">" + quakeMag[0] + "</div>" +
-        "<div class=\"max\">" + quakeMag[quakeMag.length - 1] + "</div>" +
-      "</div>";
-
-    div.innerHTML = legendInfo;
-
-    quakeMag.forEach(function(quakeMag, index) {
-      labels.push("<li style=\"background-color: " + getColor[index] + "\"></li>");
-    });
-
-    div.innerHTML += "<ul>" + labels.join("") + "</ul>";
-    return div;
-  };
-
-  // Adding the legend to the map
-  legend.addTo(myMap);
-
-//////////////////////////////////////////////////////////////
