@@ -7,6 +7,6 @@ Using Leaflet and USGS earthquake data to create a map that plots all of the ear
 To view the map, go to: [USGS Earthquake Map](https://savi09.github.io/USGS-earthquake/)
 
 ### Sources
-  * Leaflet - https://leafletjs.com/
-  * OpenStreetMap -
-  * GeoJSON - https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php
+  * [Leaflet](https://leafletjs.com/)
+  * [OpenStreetMap](https://www.openstreetmap.org/copyright)
+  * [GeoJSON](https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php)
