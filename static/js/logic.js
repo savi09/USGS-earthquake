@@ -6,6 +6,9 @@ var queryUrl = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/1.0_we
 
 // Perform a GET request to the query URL/
 d3.json(queryUrl).then(function (data) {
+
+
+
   // Once we get a response, send the data.features object to the createFeatures function.
   createFeatures(data.features);
 });
@@ -43,7 +46,11 @@ function createFeatures(earthquakeData) {
       radius: feature.properties.mag * 1.5
     })
 
+    
+
   }
+
+
 
     
     // Define a function that we want to run once for each feature in the features array.
@@ -62,34 +69,7 @@ function createFeatures(earthquakeData) {
 
   // Send our earthquakes layer to the createMap function/
   createMap(earthquakes);
-}
-
-var legend = L.control({position: 'bottomright'});
-
-  function getColor(m) {
-    return m >= 90  ? "red" :
-           m >= 70  ? "orangered" :
-           m >= 50  ? "orange" :
-           m >= 30   ? "gold":
-           m >= 10   ? "yellow" :
-                        "lime";
-}
-
-  legend.onAdd = function (map) {
-
-      var div = L.DomUtil.create('div', 'info legend'),
-          quakeMag = [10, 30, 50, 70, 90],
-          labels = [];
-
-      // loop through our density intervals and generate a label with a colored square for each interval
-      for (var i = 0; i < quakeMag.length; i++) {
-          div.innerHTML +=
-              '<i style="background:' + getColor(quakeMag[i] + 1) + '"></i> ' +
-              quakeMag[i] + (quakeMag[i + 1] ? '&ndash;' + quakeMag[i + 1] + '<br>' : '+');
-      }
-
-      return div;
-  };
+  }
 
 
 
@@ -116,7 +96,7 @@ function createMap(earthquakes) {
   };
 
   // Create our map, giving it the streetmap and earthquakes layers to display on load.
-  var myMap = L.map("mapid", {
+  var myMap = L.map("map", {
     center: [
       0, 30
     ],
@@ -127,10 +107,50 @@ function createMap(earthquakes) {
   // Create a layer control.
   // Pass it our baseMaps and overlayMaps.
   // Add the layer control to the map.
-  L.control.layers(baseMaps, overlayMaps, legend, {
+  L.control.layers(baseMaps, overlayMaps, {
     collapsed: false
   }).addTo(myMap);
 
 
 }
 
+
+//////////////////////////////////////////////////////////////
+
+function getColor(m) {
+  return m >= 90  ? "red" :
+        m >= 70  ? "orangered" :
+        m >= 50  ? "orange" :
+        m >= 30   ? "gold":
+        m >= 10   ? "yellow" :
+                      "lime";
+}
+
+  // Set up the legend.
+  var legend = L.control({ position: "bottomright" });
+  legend.onAdd = function() {
+    var div = L.DomUtil.create("div", "info legend");
+    var quakeMag = [10, 30, 50, 70, 90];
+    var labels = [];
+
+    // Add the minimum and maximum.
+    var legendInfo = "<h1>Median Income</h1>" +
+      "<div class=\"labels\">" +
+        "<div class=\"min\">" + quakeMag[0] + "</div>" +
+        "<div class=\"max\">" + quakeMag[quakeMag.length - 1] + "</div>" +
+      "</div>";
+
+    div.innerHTML = legendInfo;
+
+    quakeMag.forEach(function(quakeMag, index) {
+      labels.push("<li style=\"background-color: " + getColor[index] + "\"></li>");
+    });
+
+    div.innerHTML += "<ul>" + labels.join("") + "</ul>";
+    return div;
+  };
+
+  // Adding the legend to the map
+  legend.addTo(myMap);
+
+//////////////////////////////////////////////////////////////
