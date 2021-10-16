@@ -1,5 +1,7 @@
 // Store our API endpoint as queryUrl.
-var queryUrl = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_week.geojson";
+// var queryUrl = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_week.geojson";
+
+var queryUrl = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/1.0_week.geojson";
 
 // Perform a GET request to the query URL/
 d3.json(queryUrl).then(function (data) {
@@ -7,23 +9,59 @@ d3.json(queryUrl).then(function (data) {
   createFeatures(data.features);
 });
 
+
 function createFeatures(earthquakeData) {
 
-  // Define a function that we want to run once for each feature in the features array.
+  function pointToLayer(feature, latlng) {
+    var color;
+    if (feature.geometry.coordinates[2] < 10) {
+      color = "lime";
+    }
+    else if (feature.geometry.coordinates[2] >= 10 && feature.geometry.coordinates[2] < 30) {
+      color = "yellow";
+    }
+    else if (feature.geometry.coordinates[2] >= 30 && feature.geometry.coordinates[2] < 50)  {
+      color = "gold";
+    }
+    else if (feature.geometry.coordinates[2] >= 50 && feature.geometry.coordinates[2] < 70)  {
+      color = "orange";
+    }
+    else if (feature.geometry.coordinates[2] >= 70 && feature.geometry.coordinates[2] < 90)  {
+      color = "orangered";
+    }
+    else {
+      color = "red";
+    }
+
+    // Add circles to the map.
+    return new L.circleMarker(latlng, {
+      fillOpacity: 0.75,
+      fillColor: color,
+      // Adjust the radius.
+      radius: feature.properties.mag * 1.5
+    })
+
+  }
+
+    
+    // Define a function that we want to run once for each feature in the features array.
   // Give each feature a popup that describes the place and time of the earthquake.
   function onEachFeature(feature, layer) {
+
     layer.bindPopup(`<h3>${feature.properties.place}</h3><hr><p>${new Date(feature.properties.time)}</p>`);
   }
 
   // Create a GeoJSON layer that contains the features array on the earthquakeData object.
   // Run the onEachFeature function once for each piece of data in the array.
   var earthquakes = L.geoJSON(earthquakeData, {
+    pointToLayer: pointToLayer,
     onEachFeature: onEachFeature
   });
 
   // Send our earthquakes layer to the createMap function/
   createMap(earthquakes);
 }
+
 
 function createMap(earthquakes) {
 
@@ -50,9 +88,9 @@ function createMap(earthquakes) {
   // Create our map, giving it the streetmap and earthquakes layers to display on load.
   var myMap = L.map("map", {
     center: [
-      37.09, -95.71
+      0, 30
     ],
-    zoom: 5,
+    zoom: 2.5,
     layers: [street, earthquakes]
   });
 
